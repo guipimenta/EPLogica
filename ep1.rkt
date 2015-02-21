@@ -36,7 +36,14 @@
 (percorreConjunto arg)
 
 ;percorrendo uma relacao binaria
-
+(define (percorreBinaria rbin n)
+  (if (empty? rbin)
+      null
+      (begin 
+        ((cdr (first rbin)))
+      )
+  )
+)
 
 
   
