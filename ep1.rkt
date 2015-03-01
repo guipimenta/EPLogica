@@ -88,17 +88,53 @@
   (let ([x '()])
     (if (empty? rbin)
         freflexivo
+        ;procura par reflexivo do primeiro elemento do par ordenado
         (if (member (cons (caar rbin) (caar rbin)) original)
-          (determinaFechoReflexivo (cdr rbin) freflexivo original)
+          (begin
+            ;caso nao encontre, faz o mesmo para o segundo elemento do par ordenado
+            (if (member (cons (cdar rbin) (cdar rbin)) original)
+              (determinaFechoReflexivo (cdr rbin) freflexivo original)
+              (let ([x (determinaFechoReflexivo (cdr rbin) (adicionaParEmLista (cons (cdar rbin) (cdar rbin)) freflexivo) original)]) x))
+          ) 
           (let ([x (determinaFechoReflexivo (cdr rbin) (adicionaParEmLista (cons (caar rbin) (caar rbin)) freflexivo) original)]) x))
     )
   )
 )
 
 
+;fecho transitivo
+
+(define (determinaFechoTransitivo rbin)
+  (if (empty? rbin)
+    null
+    (begin
+      ;(criaParesParaFechoTransitivo (car rbin) (percorreBinaria rbin (cdar rbin)))
+      (determinaFechoTransitivo (cdr rbin))
+    )
+  )
+)
+
+;funcao recebe em par1 um par ordenado (ex.: (1,2)) e em listaDePares2 uma lista de pares ordenados (ex.: ((2,3) (2,4)))
+;e retorna uma lista com os pares ordenados que completam o fech transitivo (ex.: ((1,3) (1,4)))
+(define (criaParesParaFechoTransitivo par1 listaDePares2 listaNova)
+    (if (empty? listaDePares2)
+      listaNova
+      (begin
+        (adicionaParEmLista (cons (car par1) (cdar listaDePares2)) listaNova)
+        (criaParesParaFechoTransitivo par1 (cdr listaDePares2) listaNova)
+      )
+    )
+)
+
 ;exemplo
-(define fecho_reflexivo (list))
-(print (determinaFechoReflexivo dpair_list fecho_reflexivo dpair_list))
+(display dpair_list)
+(display "\n\n")
+;(determinaFechoTransitivo dpair_list)
+(criaParesParaFechoTransitivo (cons 1 2) (list (cons 2 3) (cons 2 4)) '())
+
+;exemplo
+;(define fecho_reflexivo (list))
+;(print (determinaFechoReflexivo dpair_list fecho_reflexivo dpair_list))
 
 ;(adicionaParEmLista (cons 4 4) dpair_list)
 
