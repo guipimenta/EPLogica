@@ -84,13 +84,13 @@
 
 ;funcao que calcula o fecho reflexivo de uma lista de pares ordenados
 ;o primeiro parametro é a lista original e o segundo é o fecho reflexivo no retorno da funcao
-(define (determinaFechoReflexivo rbin freflexivo)
+(define (determinaFechoReflexivo rbin freflexivo original)
   (let ([x '()])
     (if (empty? rbin)
         freflexivo
-        (if (member (cons (caar rbin) (caar rbin)) rbin)
-          (determinaFechoReflexivo (cdr rbin) freflexivo)
-          (let ([x (determinaFechoReflexivo (cdr rbin) (adicionaParEmLista (cons (caar rbin) (caar rbin)) freflexivo))]) x))
+        (if (member (cons (caar rbin) (caar rbin)) original)
+          (determinaFechoReflexivo (cdr rbin) freflexivo original)
+          (let ([x (determinaFechoReflexivo (cdr rbin) (adicionaParEmLista (cons (caar rbin) (caar rbin)) freflexivo) original)]) x))
     )
   )
 )
@@ -98,6 +98,7 @@
 
 ;exemplo
 (define fecho_reflexivo (list))
-(print (determinaFechoReflexivo dpair_list fecho_reflexivo))
+(print (determinaFechoReflexivo dpair_list fecho_reflexivo dpair_list))
+
 ;(adicionaParEmLista (cons 4 4) dpair_list)
 
