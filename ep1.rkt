@@ -114,23 +114,24 @@
   )
 )
 
+
 ;funcao recebe em par1 um par ordenado (ex.: (1,2)) e em listaDePares2 uma lista de pares ordenados (ex.: ((2,3) (2,4)))
 ;e retorna uma lista com os pares ordenados que completam o fech transitivo (ex.: ((1,3) (1,4)))
 (define (criaParesParaFechoTransitivo par1 listaDePares2 listaNova)
+  (let ([x '()])
     (if (empty? listaDePares2)
-      listaNova
-      (begin
-        (adicionaParEmLista (cons (car par1) (cdar listaDePares2)) listaNova)
-        (criaParesParaFechoTransitivo par1 (cdr listaDePares2) listaNova)
-      )
-    )
+        listaNova
+        (criaParesParaFechoTransitivo par1 (cdr listaDePares2) (adicionaParEmLista (cons (car par1) (cdar listaDePares2)) listaNova))
+
+     )
+   )
 )
 
 ;exemplo
 (display dpair_list)
 (display "\n\n")
 ;(determinaFechoTransitivo dpair_list)
-(criaParesParaFechoTransitivo (cons 1 2) (list (cons 2 3) (cons 2 4)) '())
+(display (criaParesParaFechoTransitivo (cons 1 2) (list (cons 2 3) (cons 2 4)) '()))
 
 ;exemplo
 ;(define fecho_reflexivo (list))
