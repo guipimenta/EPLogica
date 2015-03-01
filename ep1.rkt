@@ -15,9 +15,11 @@
 (define arg (conjunto (tupla 1 2) (tupla 3 4) (tupla 4 5) (tupla 6 7)))
 
 ;conjunto de dotted pairs
-(define dpair_list '((1 2) (3 4) (4 5) (6 7) (4 7)))
+(define dpair_list (list (cons 1 2) (cons 3 4) (cons 4 5) (cons 4 4) (cons 6 7) (cons 4 7)))
 
-
+;
+;     PARTE 1
+;
 ;item 1 - funcao que percorre lista
 
 ;funcao auxiliar for
@@ -28,14 +30,18 @@
       ;esse begin e necessario para executarmos multiplos procedures dentro do if
       (begin
         ;recursao que permite percorrer atraves dos conjuntos...
-        (cons (first myconj)(percorreConjunto (rest myconj)))
-        ;(percorreConjunto (rest myconj))
+        (cons (car myconj)(percorreConjunto (cdr myconj)))
+        ;(percorreConjunto (cdr myconj))
       )
    )
 )
 
 ;chamando a funcao definida anteriormente - teste
-(percorreConjunto dpair_list)
+;(percorreConjunto dpair_list)
+
+;
+;     PARTE 2
+;
 
 ;percorrendo uma relacao binaria
 (define (percorreBinaria rbin n)
@@ -43,14 +49,44 @@
       null
       (begin
         ;compara o valor n com o primeiro elemento do primeiro par da lista
-        (if (= n (first (first rbin)))
-            (cons (first rbin) (percorreBinaria (rest rbin) n))
+        (if (= n (caar rbin))
+            (cons (car rbin) (percorreBinaria (cdr rbin) n))
 
-            (percorreBinaria (rest rbin) n)
+            (percorreBinaria (cdr rbin) n)
         ) 
       )
   )
 )
 
-(percorreBinaria dpair_list 4)
+;(percorreBinaria dpair_list 4)
 
+;
+;     PARTE 3
+;
+
+;fecho reflexivo
+
+;funcao que adiciona um par a uma lista caso esse par ainda não esteja na lista
+(define (adicionaParEmLista par rbin)
+  (if (empty? rbin)
+    (list par)
+    (if (member par rbin)
+      rbin
+      (append rbin (list par))
+    )
+  )
+)
+
+;funcao que calcula o fecho reflexivo de uma lista de pares ordenados
+;o primeiro parametro é a lista original e o segundo é o fecho reflexivo no retorno da funcao
+(define (determinaFechoReflexivo rbin freflexivo)
+  (if (empty? rbin)
+    null
+    (determinaFechoReflexivo (cdr rbin) (adicionaParEmLista (cons (caar rbin) (caar rbin)) rbin))
+  )
+)
+
+;exemplo
+(define (fecho_reflexivo '())
+(determinaFechoReflexivo dpair_list fecho_reflexivo);
+;(adicionaParEmLista (cons 4 4) dpair_list)
