@@ -68,25 +68,36 @@
 
 ;funcao que adiciona um par a uma lista caso esse par ainda não esteja na lista
 (define (adicionaParEmLista par rbin)
+  (let ([x '()])
   (if (empty? rbin)
     (list par)
     (if (member par rbin)
       rbin
-      (append rbin (list par))
+      (let ([x  (append rbin (list par))])
+        x)
+      
     )
   )
+  )
 )
+
 
 ;funcao que calcula o fecho reflexivo de uma lista de pares ordenados
 ;o primeiro parametro é a lista original e o segundo é o fecho reflexivo no retorno da funcao
 (define (determinaFechoReflexivo rbin freflexivo)
-  (if (empty? rbin)
-    null
-    (determinaFechoReflexivo (cdr rbin) (adicionaParEmLista (cons (caar rbin) (caar rbin)) rbin))
+  (let ([x '()])
+    (if (empty? rbin)
+        freflexivo
+        (if (member (cons (caar rbin) (caar rbin)) rbin)
+          (determinaFechoReflexivo (cdr rbin) freflexivo)
+          (let ([x (determinaFechoReflexivo (cdr rbin) (adicionaParEmLista (cons (caar rbin) (caar rbin)) freflexivo))]) x))
+    )
   )
 )
 
+
 ;exemplo
-(define (fecho_reflexivo '())
-(determinaFechoReflexivo dpair_list fecho_reflexivo);
+(define fecho_reflexivo (list))
+(print (determinaFechoReflexivo dpair_list fecho_reflexivo))
 ;(adicionaParEmLista (cons 4 4) dpair_list)
+
