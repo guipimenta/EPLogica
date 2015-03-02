@@ -2,27 +2,12 @@
 
 ;EP1 de Logica Computacional (PCS2046)
 ;Tomás Azevedo       7209968
-;Guilherme Pimenta   
+;Guilherme Pimenta   6872835
 ;Algoritmo para encontrar um feixo transitivo reflexivo
-
-;definicao de tupla
-(define (tupla x y)
-  (list x y))
-
-;conjunto de tuplas definido na mao
-(define (conjunto a b c d) (
-                      list a b c d))
-
-;conjunto efetivo que iremos percorrer
-(define arg (conjunto (tupla 1 2) (tupla 3 4) (tupla 4 5) (tupla 6 7)))
-
-;conjunto de dotted pairs
-(define dpair_list (list (cons 'ab 'ce) (cons 3 4) (cons 4 5) (cons 4 6) (cons 'ce 'cf) (cons 'ce 8)))
 
 ;
 ;     PARTE 1
 ;
-;item 1 - funcao que percorre lista
 
 ;funcao auxiliar for
 (define (percorreConjunto myconj)
@@ -166,7 +151,11 @@
   )
 )
 
-;exemplo
+;exemplo de como utilizar
+
+;conjunto de pares ordenados a ser utilizado como exemplo
+(define dpair_list (list (cons 'ab 'ce) (cons 3 4) (cons 4 5) (cons 4 6) (cons 'ce 'cf) (cons 'ce 8)))
+
 (display "Relacao = ")
 (display dpair_list)
 (display "\n\n")
