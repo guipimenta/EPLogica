@@ -1,29 +1,30 @@
 #lang racket
-;uma gramatica definida de acordo com as
-;especificacoes do algortimo
-;ver algoritmo ep2.txt
+; Exercicio-Programa 2: recursividade para reconhecimento de cadeias
+; Grupo: Guilherme Pimenta Sorregotti
+;        Tomas Azevedo
+
+
+;
+; DEFINICAO: uma regra do tipo A-> abc sera definida, em scheme, como
+;            ("A", ("a" "b" "c"))
+; DEFINICAO: uma gramatica sera definida, para o projeto, como uma lista de regras
+;            e um conjunto NT de nao terminais
+;            ex: A->abc B->aBa
+;                Regras: ((("A") ("a" "b" "c")), ( "B" ("aBa")))
+;                NT: ("A" "B")
 (define G (list (list "A" (list "a" "b" "c")) (list "B" (list "b")) ) )
 (define NT (list "A" "B"))
 
 
-;funcao auxiliar for
-(define (percorreConjunto myconj)
-  (if (empty? myconj)
-      ;fim da recursao
-      null
-      ;esse begin e necessario para executarmos multiplos procedures dentro do if
-      (begin
-        ;recursao que permite percorrer atraves dos conjuntos...
-        ;(cons (car myconj)(percorreConjunto (cdr myconj)))
-        (percorreConjunto (cdr myconj))
-      )
-   )
-)
+; Descricao:
+;              Funcao auxiliar que identifica TODOS os nao-terminais em uma frase
+; Entrada:
+;      frase:  LISTA aonde a funcao vai verificar a existencia de NT
+;         NT:  ELEMENTO a ser procurado
+;     NTList:  LISTA vazia
+; saida:
+;     NTLIST:  LISTA com todos NT terminais pertencentes a frase
 
-
-
-;Recebe nao terminais
-;Procura nao terminais na frase
 (define (procuraNT frase NT NTList)
   (if (empty? NT)
       NTList ;frase so tem nao terminais
@@ -34,14 +35,14 @@
    )
 )
 
-;funcao que verifica, atraves de true ou false
-;se um elemento e parte de uma lista
-; entrada:
-;   elemento
-;   lista
+; Descricao:
+;            Funcao auxiliar para determinar se um elemento faz parte de uma lista
+; Entrada:
+;   elemento: ELEMENTO a ser procurado na lista
+;      lista:  lista aonde o elemento anterior vai ser procurado
 ; saida:
-;   true: pertence
-;   false: nao pertence
+;       true: pertence
+;      false: nao pertence
 (define (isMember element list)
   (if (empty? list)
       #f
@@ -53,10 +54,16 @@
 )
 
 
-;Recebe um nao terminal e procura
-;na gramatica, e retorna regras associadas a ele
-;retorna uma lista de TODAS as regras associadas a
-;esse nao terminal (lista regras)
+;
+; Descricao:
+;            Recebe um NT e uma gramatica, retorna, em uma lista, todas
+;            regras associadas a esse NT
+; Entrada:
+;            NT: ELEMENTO nao terminal
+;             G: Lista que representa as regras da gramatica
+;        regras: lista vazia a ser usada como retorno
+; Saida:
+;        regras: lista armazenando todas as regras possiveis para o NT dado
 (define (procuraRegra NT G regras)
   (if (empty? G)
       regras
@@ -68,42 +75,33 @@
   )
 )
 
-
-; Para uma dada regra, substitui um NT pela regra equivalente
+; Descricao:
+;              Para uma dada regra, substitui UM UNICO NT pela regra equivalente
+;              Recursao dessa funcao podemos obter gerar todas as novas frases
+; Argumentos de entrada:
+;       frase: lista que denota uma frase
+;       regra: regra na codificao padrao adotada pelo EP (vide comentarios acima)
+;   novafrase: nova frase, substituindo a primeira ocorrencia do NT pela regra
+; Saida:
+;   novafrase: nova frase, com um NT substituido pela regra
 (define (substituiNTFrase frase regra novafrase)
   (if (empty? frase)
-      novafrase
-      (if (isMember (first (first regra)) (list (first frase)))
-          (substituiNTFrase (rest frase) (list) (append (second (first regra)) novafrase))
+      (reverse novafrase)
+      (if (empty? regra)
           (substituiNTFrase (rest frase) regra (append (list (first frase)) novafrase))
+          (if (isMember (first (first regra)) (list (first frase)))
+              (substituiNTFrase (rest frase) (list) (append (reverse (second (first regra))) novafrase))
+              (substituiNTFrase (rest frase) regra (append (list (first frase)) novafrase))
+              )
       )
   )
 )
 
-(define (substituiNTRegra frase regra novaFrase)
-  (if (empty? frase)
-      novaFrase
-      (if (isMember (first regra)  (list (first frase)))
-          (substituiNTRegra (rest frase) regra (append novaFrase (list (rest regra))))
-          (substituiNTRegra (rest frase) regra (append novaFrase (list (rest frase))))
-      )
-  )                         
-)
 
-
-
-;funcao que faz trocas no nao terminal
-;por uma nova regra
-(define (criaNovasFrases frase G regras novasFrases)
-  (if (empty? regras)
-      novasFrases
-      null
-  )
-)
 
 
 (define listaRegras (list))
-(define frase (list "a" "A" "B" "B"))
+(define frase (list "a" "A" "A" "B"))
 (display "Gramatica: ")
 (display (car G))
 (newline)
