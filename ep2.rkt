@@ -12,8 +12,8 @@
 ;            ex: A->abc B->aBa
 ;                Regras: ((("A") ("a" "b" "c")), ( "B" ("aBa")))
 ;                NT: ("A" "B")
-(define G (list (list "A" (list "a" "b" "c")) (list "B" (list "b")) ) )
-(define NT (list "A" "B"))
+(define G (list (list "S" (list "A" "a")) (list "A" (list "b" "B")) (list "B" (list "b" "B")) ) )
+(define NT (list "S" "A" "B"))
 
 
 ; Descricao:
@@ -67,7 +67,7 @@
 (define (procuraRegra NT G regras)
   (if (empty? G)
       regras
-      (if (isMember NT (first G))
+      (if (isMember NT (list (first (first G))))
           (procuraRegra NT (rest G) (append (list (first G) ) regras  ))
           (procuraRegra NT (rest G) regras)
        )
@@ -97,24 +97,46 @@
   )
 )
 
+(define (procuraRegrasConjuntoNT NTList G regras)
+  (if (empty? NTList)
+      regras
+      (procuraRegrasConjuntoNT (rest NTList) G (procuraRegra (first NTList) G regras))
+  )
+)
 
-
-
+;teriamos que ter um protipo desse tipo
+;que lindo!
+(define (achaTodasFraseProfundidadeN SI G NT novafrase SIZE i)
+  (display SI)
+  (newline)
+  (if (>= i SIZE)
+      SI
+      (achaTodasFraseProfundidadeN (substituiNTFrase SI (procuraRegrasConjuntoNT (procuraNT SI NT (list)) G (list)) (list)) G NT (list) SIZE (+ i 1))
+  )
+)
 (define listaRegras (list))
-(define frase (list "a" "A" "A" "B"))
+;que eu quero chegar
 (display "Gramatica: ")
-(display (car G))
+(display  G)
 (newline)
-(display "Derivacao da frase dada:")
-(newline)
-(display frase)
+(display "Iniciando derivacao do inicial...")
 (newline)
 
-(define NTList (list))
-(procuraNT frase NT NTList)
-(define regras (procuraRegra "A" G (list)) )
+;prototipo de como seria a funcao para achar cadeias de profundidade N
+;(define NTList (list))
+;(define regras (procuraRegra "S" G (list)) )
+;(define novafrase (substituiNTFrase (list "S") regras (list)))
 
-(define novafrase (list))
-(substituiNTFrase frase regras  novafrase)
+;com nova frase, repitimos as mesmas coisas
+;(define NTList2 (procuraNT novafrase NT (list)))
+;(define regras2 (procuraRegrasConjuntoNT NTList2 G (list)))
+;(define novafrase2(substituiNTFrase novafrase regras2 (list)))
+;(display novafrase2)
+
+(achaTodasFraseProfundidadeN (list "S") G NT (list) 10 0)
+
+
+
+
 
 ;(substituiNTRegra frase (procuraRegra (procuraNT (list "A" "b" "c") NT) G listaRegras) (list))
