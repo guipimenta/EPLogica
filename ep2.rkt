@@ -12,7 +12,7 @@
 ;            ex: A->abc B->aBa
 ;                Regras: ((("A") ("a" "b" "c")), ( "B" ("aBa")))
 ;                NT: ("A" "B")
-(define G (list (list "S" (list "A" "a")) (list "A" (list "b" "B")) (list "B" (list "b" "B")) ) )
+(define G (list (list "S" (list "A" "a")) (list "A" (list "b" "B")) (list "B" (list "b")) ) )
 (define NT (list "S" "A" "B"))
 
 
@@ -106,12 +106,12 @@
 
 ;teriamos que ter um protipo desse tipo
 ;que lindo!
-(define (achaTodasFraseProfundidadeN SI G NT novafrase SIZE i)
+(define (achaTodasFraseProfundidadeN SI G NT novafrase SIZE )
   (display SI)
   (newline)
-  (if (>= i SIZE)
+  (if (or (>= (length SI) SIZE) (= (length (procuraNT SI NT (list))) 0)  )
       SI
-      (achaTodasFraseProfundidadeN (substituiNTFrase SI (procuraRegrasConjuntoNT (procuraNT SI NT (list)) G (list)) (list)) G NT (list) SIZE (+ i 1))
+      (achaTodasFraseProfundidadeN (substituiNTFrase SI (procuraRegrasConjuntoNT (procuraNT SI NT (list)) G (list)) (list)) G NT (list) SIZE )
   )
 )
 (define listaRegras (list))
@@ -133,7 +133,7 @@
 ;(define novafrase2(substituiNTFrase novafrase regras2 (list)))
 ;(display novafrase2)
 
-(achaTodasFraseProfundidadeN (list "S") G NT (list) 10 0)
+(achaTodasFraseProfundidadeN (list "S") G NT (list) 10)
 
 
 
