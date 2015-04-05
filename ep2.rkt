@@ -7,13 +7,17 @@
 ;
 ; DEFINICAO: uma regra do tipo A-> abc sera definida, em scheme, como
 ;            ("A", ("a" "b" "c"))
-; DEFINICAO: uma gramatica sera definida, para o projeto, como uma lista de regras
-;            e um conjunto NT de nao terminais
-;            ex: A->abc B->aBa
-;                Regras: ((("A") ("a" "b" "c")), ( "B" ("aBa")))
-;                NT: ("A" "B")
-(define G (list (list "S" (list "a" "b" "A")) (list "A" (list "c" "A")) (list "A" (list)) ) )
-(define NT (list "S" "A"))
+; DEFINICAO: uma gramatica sera definida, para o projeto, como uma lista de regras,
+;            um conjunto NT de nao terminais,
+;            e um NT que é o símbolo inicial (SI) da gramática
+;            ex: S-> abA A->cB B->d
+;                Regras: ((("S") ("a" "b" "A")), ( "A" ("c" "B")), ( "B" ("d")))
+;                NT: ("S" "A" "B")
+;                SI: ("S")
+; EXEMPLO:
+;(define G (list (list "S" (list "a" "b" "A")) (list "A" (list "c" "A")) (list "A" (list)) ) )
+;(define NT (list "S" "A"))
+;(define SI (list "S"))
 
 
 ; Descricao:
@@ -262,25 +266,30 @@
 ;       frases: lista de listas que denota multiplas frases
 ;       regras: múltiplas regras na codificao padrao adotada pelo EP (vide comentarios acima)
 ;   novasfrases: novas frases, substituindo a primeira ocorrencia do NT pela regra
+;           NT: nao-terminais das regras (para passar aquelas regras referentes aos nao-terminais de cada frase)
 ; Saida:
 ;   novasfrases: novas frases, com um NT substituido pela regra
-(define (substituiNTFrase3 frases regras novasfrases)
+(define (substituiNTFrase3 frases regras novasfrases NT)
   (if (empty? frases)
       novasfrases
       (if (list? (first frases))
-          (substituiNTFrase3 (rest frases) regras (appendToListIfNotPresent (substituiNTFrase2 (first frases) regras (list)) novasfrases))
-          (substituiNTFrase3 (list) regras (appendToListIfNotPresent (substituiNTFrase2 frases regras (list)) novasfrases))
+          (substituiNTFrase3 (rest frases) regras (appendToListIfNotPresent (substituiNTFrase2 (first frases) (procuraRegrasConjuntoNT (procuraNT2 (first frases) NT (list)) regras (list)) (list)) novasfrases) NT)
+          (substituiNTFrase3 (list) regras (appendToListIfNotPresent (substituiNTFrase2 frases (procuraRegrasConjuntoNT (procuraNT2 frases NT (list)) regras (list)) (list)) novasfrases) NT)
       )
   )
 )
 
 ;teriamos que ter um protipo desse tipo
 ;que lindo!
-(define (achaTodasFraseProfundidadeN SI G NT novafrase SIZE )
+(define (achaTodasFraseProfundidadeNAux SI G NT novafrase SIZE )
   (if (empty? SI)
       (frasesDeTamanhoNOuMenor novafrase SIZE (list))
-      (achaTodasFraseProfundidadeN (frasesDeTamanhoNOuMenor (substituiNTFrase3 SI (procuraRegrasConjuntoNT (procuraNT2 SI NT (list)) G (list)) (list)) (+ SIZE 1) (list)) G NT (appendToListIfNotPresent SI novafrase) SIZE )
+      (achaTodasFraseProfundidadeNAux (frasesDeTamanhoNOuMenor (substituiNTFrase3 SI (procuraRegrasConjuntoNT (procuraNT2 SI NT (list)) G (list)) (list) NT) (+ SIZE 1) (list)) G NT (appendToListIfNotPresent SI novafrase) SIZE )
   )
+)
+
+(define (achaTodasFraseProfundidadeN SI G NT SIZE )
+  (achaTodasFraseProfundidadeNAux SI G NT (list) SIZE)
 )
 
 ;funcao que retorna as frases (de uma lista de frases) com tamanho menor ou igual a SIZE
@@ -355,30 +364,17 @@
   )
 )
 
+;caso de teste 1 - linguagem regular (tipo 3)
+;(define G (list (list "S" (list "a" "S")) (list "S" (list "b" "A")) (list "A" (list "c" "A")) (list "A" (list)) ) )
+;(define NT (list "S" "A"))
+;(define SI (list "S"))
 
-(define listaRegras (list))
-;que eu quero chegar
-(display "Gramatica: ")
-(display  G)
-(newline)
-(display "Iniciando derivacao do inicial...")
-(newline)
+;(achaTodasFraseProfundidadeN SI G NT 3)
 
-;prototipo de como seria a funcao para achar cadeias de profundidade N
-;(define NTList (list))
-;(define regras (procuraRegra "S" G (list)) )
-;(define novafrase (substituiNTFrase (list "S") regras (list)))
+;caso de teste 2 - linguagem livre de contexto (tipo 2)
+(define G (list (list "S" (list "a" "S" "b")) (list "S" (list))) )
+(define NT (list "S"))
+(define SI (list "S"))
 
-;com nova frase, repitimos as mesmas coisas
-;(define NTList2 (procuraNT novafrase NT (list)))
-;(define regras2 (procuraRegrasConjuntoNT NTList2 G (list)))
-;(define novafrase2(substituiNTFrase novafrase regras2 (list)))
-;(display novafrase2)
+(achaTodasFraseProfundidadeN SI G NT 10)
 
-;(define regras (list (list "A" (list "a" "c"))))
-;(define regras (list (list "A" (list "a" "c")) (list "A" (list "a" "b")) ) )
-;(define frases (list (list "a" "b" "A") (list "d" "d" "A")) )
-;(substituiNTFrase3 frases regras (list))
-(achaTodasFraseProfundidadeN (list "S") G NT (list) 6)
-
-;(substituiNTRegra frase (procuraRegra (procuraNT (list "A" "b" "c") NT) G listaRegras) (list))
