@@ -1,7 +1,7 @@
 #lang racket
 ; Exercicio-Programa 2: recursividade para reconhecimento de cadeias
-; Grupo: Guilherme Pimenta Sorregotti
-;        Tomás Albuquerque Azevedo
+; Grupo: Guilherme Pimenta Sorregotti        6872835
+;        Tomás Albuquerque Azevedo           7209968
 
 
 ;
@@ -14,55 +14,45 @@
 ;                Regras: ((("S") ("a" "b" "A")), ( "A" ("c" "B")), ( "B" ("d")))
 ;                NT: ("S" "A" "B")
 ;                SI: ("S")
+;            uma gramatica tambem pode ser definida por uma lista de listas, sendo
+;            a primeira lista denominando o SI, a segunda lista denominando os NTs
+;            e a terceira lista denominando as regras da gramatica
 ; EXEMPLO:
 ;(define G (list (list "S" (list "a" "b" "A")) (list "A" (list "c" "A")) (list "A" (list)) ) )
 ;(define NT (list "S" "A"))
 ;(define SI (list "S"))
+; EXEMPLO JUNTO:
+;(define gramatica (list (list "S") (list "S" "A") (list (list "S" (list "a" "b" "A")) (list "A" (list "c" "A")) (list "A" (list)) ) ) )
 
-
-; Descricao:
-;            Funcao auxiliar para determinar se um elemento faz parte de uma lista
-; Entrada:
-;   elemento: ELEMENTO a ser procurado na lista
-;      lista:  lista aonde o elemento anterior vai ser procurado
-; saida:
-;       true: pertence
-;      false: nao pertence
-(define (isMember element list)
-  (if (empty? list)
-      #f
-      (if (list? (member element list) )
-          #t
-          (isMember element (rest list))
-      )
-  )
-)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                        FUNCOES AUXILIARES GERAIS                       ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Descricao:
 ;            Funcao que retorna parte de uma lista
 ; Entrada:
-;      lst: lista a ser manipulada
+;      lista: lista a ser manipulada
 ;      start: posicao do primeiro caracter da novalista (comeca em 1)
 ;      count: contagem de caracteres a serem extraidos
 ; saida:
 ;       lista nova
-(define (slice lst start count)
+(define (slice lista start count)
   (if (> start 1)
-      (slice (cdr lst) (- start 1) count)
-      (get-n-items lst count)
+      (slice (cdr lista) (- start 1) count)
+      (get-n-items lista count)
   )
 )
 
 ; Descricao:
 ;            Funcao a ser utilizada pela funcao SLICE, que retorna N itens da uma lista
 ; Entrada:
-;      lst: lista a ser manipulada
+;      lista: lista a ser manipulada
 ;      num: numero de itens a serem extraidos
 ; saida:
 ;       lista nova
-(define (get-n-items lst num)
+(define (get-n-items lista num)
   (if (> num 0)
-      (cons (car lst) (get-n-items (cdr lst) (- num 1)))
+      (cons (car lista) (get-n-items (cdr lista) (- num 1)))
       '()
   )
 )
@@ -78,7 +68,7 @@
 ; saida:
 ;       true: se elemento pertence a lista
 ;       false: se elemento nao pertence a lista
-(define (isMember2 element lista)
+(define (isMember element lista)
   (if (empty? lista)
       #f
       (if (list? (first lista))
@@ -144,6 +134,82 @@
   )
 )
 
+;funcao que retorna as frases (de uma lista de frases) com tamanho menor ou igual a SIZE
+(define (frasesDeTamanhoNOuMenor frases SIZE novasfrases)
+  (if (empty? frases)
+      novasfrases
+      (if (list? (first frases))
+          (if (<= (length (first frases)) SIZE)
+              (frasesDeTamanhoNOuMenor (rest frases) SIZE (appendToListIfNotPresent (first frases) novasfrases))
+              (frasesDeTamanhoNOuMenor (rest frases) SIZE novasfrases)
+          )
+          (if (<= (length frases) SIZE)
+              (frasesDeTamanhoNOuMenor (list) SIZE (appendToListIfNotPresent frases novasfrases))
+              (frasesDeTamanhoNOuMenor (list) SIZE novasfrases)
+          )
+      )
+  )
+)
+
+;funcao que dá um append de um elemento no final de uma lista
+(define (appendToList element lista)
+  (if (empty? lista)
+      (if (list? element)
+          element
+          (list element)
+      )
+      (if (list? (first lista))
+          (append lista (list element))
+          (append (list lista) (list element))
+      )
+  )
+)
+
+;funcao que  dá um append de um elemento no final de uma lista caso esse elemento ainda nao pertenca a lista
+(define (appendToListIfNotPresent element lista)
+  (if (empty? element)
+      lista
+      (if (empty? lista)
+          (if (list? (first element))
+              (if (isMember (first element) lista)
+                  (appendToListIfNotPresent (rest element) lista)
+                  (appendToListIfNotPresent (rest element) (appendToList (first element) lista))
+              )
+              (if (isMember element lista)
+                  (appendToListIfNotPresent (list) lista)
+                  (appendToListIfNotPresent (list) (appendToList element lista))
+              )
+          )
+          (if (list? (first lista))
+              (if (list? (first element))
+                  (if (isMember (first element) lista)
+                      (appendToListIfNotPresent (rest element) lista)
+                      (appendToListIfNotPresent (rest element) (appendToList (first element) lista))
+                  )
+                  (if (isMember element lista)
+                      (appendToListIfNotPresent (list) lista)
+                      (appendToListIfNotPresent (list) (appendToList element lista))
+                  )
+              )
+              (if (list? (first element))
+                  (if (isMember (first element) (list lista))
+                      (appendToListIfNotPresent (rest element) lista)
+                      (appendToListIfNotPresent (rest element) (appendToList (first element) lista))
+                  )
+                  (if (isMember element (list lista))
+                      (appendToListIfNotPresent (list) lista)
+                      (appendToListIfNotPresent (list) (appendToList element lista))
+                  )
+              )
+          )
+      )
+  )
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                   FUNCOES AUXILIARES DO PROBLEMA                       ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ; Descricao:
 ;              Funcao auxiliar que identifica TODOS os nao-terminais em uma frase
 ; Entrada:
@@ -156,7 +222,7 @@
 (define (procuraNT frase NT NTList)
   (if (empty? NT)
       NTList ;frase so tem nao terminais
-      (if (isMember2 (first NT) frase)
+      (if (isMember (first NT) frase)
           (procuraNT frase (rest NT) (append NTList (list (first NT))))
           (procuraNT frase (rest NT) NTList)
       )
@@ -209,13 +275,17 @@
 (define (procuraRegra NT G regras)
   (if (empty? G)
       regras
-      (if (isMember2 NT (list (first (first G))))
+      (if (isMember NT (list (first (first G))))
           (procuraRegra NT (rest G) (append (list (first G) ) regras  ))
           (procuraRegra NT (rest G) regras)
        )
           
   )
 )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                          FUNCOES PRINCIPAIS                            ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Descricao:
 ;              Para uma dada regra, substitui UM UNICO NT pela regra equivalente
@@ -231,7 +301,7 @@
       (reverse novafrase)
       (if (empty? regra)
           (substituiNTFrase (rest frase) regra (append (list (first frase)) novafrase))
-          (if (isMember2 (first (first regra)) (list (first frase)))
+          (if (isMember (first (first regra)) (list (first frase)))
               (substituiNTFrase (rest frase) (list) (append (reverse (second (first regra))) novafrase))
               (substituiNTFrase (rest frase) regra (append (list (first frase)) novafrase))
           )
@@ -279,8 +349,16 @@
   )
 )
 
-;teriamos que ter um protipo desse tipo
-;que lindo!
+; Descricao:
+;              Encontra todas as cadeias da Gramatica de tamanho <= SIZE (incluindo cadeias com NTs)
+; Argumentos de entrada:
+;       SI: lista com o elemento NT que inicia a gramatica (raiz)
+;       G: lista de listas com as regras da gramatica
+;       NT: lista com os elementos não-terminais da gramatica
+;   novafrase: variavel auxiliar de retorno (inicialmente nula)
+;       SIZE: tamanho máximo das cadeias a serem formadas
+; Saida:
+;   novafrase: lista com as cadeias formadas de tamanho <= SIZE
 (define (achaTodasFraseProfundidadeNAux SI G NT novafrase SIZE )
   (if (empty? SI)
       (frasesDeTamanhoNOuMenor novafrase SIZE (list))
@@ -288,93 +366,111 @@
   )
 )
 
-(define (achaTodasFraseProfundidadeN SI G NT SIZE )
+; Descricao:
+;              Encontra todas as cadeias da Gramatica de tamanho <= SIZE (incluindo cadeias com NTs)
+; Explicação:
+;              Funcao que apenas chama a funcao achaTodasFraseProfundidadeNAux passando o valor (list) para o parametro novafrase
+; Argumentos de entrada:
+;       SI: lista com o elemento NT que inicia a gramatica (raiz)
+;       G: lista de listas com as regras da gramatica
+;       NT: lista com os elementos não-terminais da gramatica
+;       SIZE: tamanho máximo das cadeias a serem formadas
+; Saida:
+;   lista com as cadeias formadas de tamanho <= SIZE
+(define (achaTodasFraseProfundidadeN SI G NT SIZE)
   (achaTodasFraseProfundidadeNAux SI G NT (list) SIZE)
 )
 
-;funcao que retorna as frases (de uma lista de frases) com tamanho menor ou igual a SIZE
-(define (frasesDeTamanhoNOuMenor frases SIZE novasfrases)
+; Descricao:
+;              Encontra todas as cadeias da Gramatica de tamanho <= SIZE (excluindo cadeias com NTs)
+; Explicação:
+;              Funcao que apenas chama a funcao removeFrasesComNT para remover as cadeias com NTs
+; Argumentos de entrada:
+;       SI: lista com o elemento NT que inicia a gramatica (raiz)
+;       G: lista de listas com as regras da gramatica
+;       NT: lista com os elementos não-terminais da gramatica
+;       SIZE: tamanho máximo das cadeias a serem formadas
+; Saida:
+;   lista com as cadeias formadas de tamanho <= SIZE
+(define (achaFrasesDeTamanhoNSemNT SI G NT SIZE)
+  (removeFrasesComNT (achaTodasFraseProfundidadeN SI G NT SIZE) NT)
+)
+
+; Descricao:
+;              Remove as frases que possuem os NTs em NTList
+; Explicação:
+;              Apenas chama a funcao removeFrasesComNT2 para cada NT em NTList
+; Argumentos de entrada:
+;       frases: lista com as frases
+;       NTList: lista com os elementos não-terminais
+; Saida:
+;   nova lista de frases sem aquelas que possuiam elementos NTs
+(define (removeFrasesComNT frases NTList)
+  (if (empty? NTList)
+      frases
+      (removeFrasesComNT (removeFrasesComNT2 frases (first NTList) (list)) (rest NTList))
+  )
+)
+
+; Descricao:
+;              Remove as frases que possuem o NT
+; Argumentos de entrada:
+;       frases: lista com as frases
+;       NT: elemento não-terminal
+;  novasfrases: variavel auxiliar de retorno
+; Saida:
+;   novasfrases: nova lista de frases sem aquelas que possuiam o elemento NT
+(define (removeFrasesComNT2 frases NT novasfrases)
   (if (empty? frases)
       novasfrases
-      (if (list? (first frases))
-          (if (<= (length (first frases)) SIZE)
-              (frasesDeTamanhoNOuMenor (rest frases) SIZE (appendToListIfNotPresent (first frases) novasfrases))
-              (frasesDeTamanhoNOuMenor (rest frases) SIZE novasfrases)
-          )
-          (if (<= (length frases) SIZE)
-              (frasesDeTamanhoNOuMenor (list) SIZE (appendToListIfNotPresent frases novasfrases))
-              (frasesDeTamanhoNOuMenor (list) SIZE novasfrases)
-          )
+      (if (isMember NT (first frases))
+          (removeFrasesComNT2 (rest frases) NT novasfrases)
+          (removeFrasesComNT2 (rest frases) NT (appendToListIfNotPresent (first frases) novasfrases))
       )
   )
 )
 
-;funcao que dá um append de um elemento no final de uma lista
-(define (appendToList element lista)
-  (if (empty? lista)
-      (if (list? element)
-          element
-          (list element)
-      )
-      (if (list? (first lista))
-          (append lista (list element))
-          (append (list lista) (list element))
-      )
-  )
+; Descricao:
+;              Identifica se cadeia pertence a gramatica
+; Argumentos de entrada:
+;       cadeia: cadeia a ser procurada nas frases geradas pelas regras da gramatica
+;       SI: lista com o elemento NT que inicia a gramatica (raiz)
+;       G: lista de listas com as regras da gramatica
+;       NT: lista com os elementos não-terminais da gramatica
+
+; Saida:
+;      true: caso a cadeia pertenca a gramatica
+;      false: caso a cadeia NAO pertenca a gramatica
+(define (cadeiaPertenceALinguagem cadeia SI G NT)
+  (isMember cadeia (achaFrasesDeTamanhoNSemNT SI G NT (length cadeia)))
 )
 
-;funcao que  dá um append de um elemento no final de uma lista caso esse elemento ainda nao pertenca a lista
-(define (appendToListIfNotPresent element lista)
-  (if (empty? element)
-      lista
-      (if (empty? lista)
-          (if (list? (first element))
-              (if (isMember2 (first element) lista)
-                  (appendToListIfNotPresent (rest element) lista)
-                  (appendToListIfNotPresent (rest element) (appendToList (first element) lista))
-              )
-              (if (isMember2 element lista)
-                  (appendToListIfNotPresent (list) lista)
-                  (appendToListIfNotPresent (list) (appendToList element lista))
-              )
-          )
-          (if (list? (first lista))
-              (if (list? (first element))
-                  (if (isMember2 (first element) lista)
-                      (appendToListIfNotPresent (rest element) lista)
-                      (appendToListIfNotPresent (rest element) (appendToList (first element) lista))
-                  )
-                  (if (isMember2 element lista)
-                      (appendToListIfNotPresent (list) lista)
-                      (appendToListIfNotPresent (list) (appendToList element lista))
-                  )
-              )
-              (if (list? (first element))
-                  (if (isMember2 (first element) (list lista))
-                      (appendToListIfNotPresent (rest element) lista)
-                      (appendToListIfNotPresent (rest element) (appendToList (first element) lista))
-                  )
-                  (if (isMember2 element (list lista))
-                      (appendToListIfNotPresent (list) lista)
-                      (appendToListIfNotPresent (list) (appendToList element lista))
-                  )
-              )
-          )
-      )
-  )
-)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                            CASOS DE TESTE                              ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;caso de teste 1 - linguagem regular (tipo 3)
-;(define G (list (list "S" (list "a" "S")) (list "S" (list "b" "A")) (list "A" (list "c" "A")) (list "A" (list)) ) )
-;(define NT (list "S" "A"))
-;(define SI (list "S"))
-
-;(achaTodasFraseProfundidadeN SI G NT 3)
-
-;caso de teste 2 - linguagem livre de contexto (tipo 2)
-(define G (list (list "S" (list "a" "S" "b")) (list "S" (list))) )
-(define NT (list "S"))
+(define G (list (list "S" (list "a" "S")) (list "S" (list "b" "A")) (list "A" (list "c" "A")) (list "A" (list)) ) )
+(define NT (list "S" "A"))
 (define SI (list "S"))
 
-(achaTodasFraseProfundidadeN SI G NT 10)
+;cadeias da gramatica G de tamanho <= 3
+(achaFrasesDeTamanhoNSemNT SI G NT 3)
+;exemplo de cadeia que pertence a gramatica
+(cadeiaPertenceALinguagem (list "a" "a" "b") SI G NT)
+;exemplo de cadeia que NAO pertence a gramatica
+(cadeiaPertenceALinguagem (list "b" "c" "b") SI G NT)
 
+;caso de teste 2 - linguagem livre de contexto (tipo 2)
+;(define G (list (list "S" (list "a" "S" "b")) (list "S" (list))) )
+;(define NT (list "S"))
+;(define SI (list "S"))
+
+;;cadeias da gramatica G de tamanho <= 8
+;(achaFrasesDeTamanhoNSemNT SI G NT 8)
+;;exemplo de cadeia que pertence a gramatica
+;(cadeiaPertenceALinguagem (list "a" "a" "a" "b" "b" "b") SI G NT)
+;;exemplo de cadeia que NAO pertence a gramatica
+;(cadeiaPertenceALinguagem (list "a" "a" "b" "b" "b") SI G NT)
